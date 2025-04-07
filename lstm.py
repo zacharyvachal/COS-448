@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Hyperparameters
-input_size = 1      # One feature (e.g. time series value)
-hidden_size = 128    # Size of hidden state
-num_layers = 4      # One LSTM layer
-output_size = 1     # Predict next value in sequence
+input_size = 1 
+hidden_size = 128    
+num_layers = 4      
+output_size = 1 
 epochs = 200
 
 class BasicLSTM(nn.Module):
@@ -17,12 +17,9 @@ class BasicLSTM(nn.Module):
 
     def forward(self, x):
         out, _ = self.lstm(x)              # out: [batch, seq_len, hidden_size]
-        out = self.fc(out[:, -1, :])       # Take last time step
+        out = self.fc(out[:, -1, :])
         return out
 
-import numpy as np
-
-# Create dummy data: sine wave
 seq_len = 20
 num_samples = 1000
 x_vals = np.linspace(0, 100, num_samples)
@@ -38,11 +35,9 @@ def make_sequences(data, seq_len):
 
 X, y = make_sequences(data, seq_len)
 
-# Convert to PyTorch tensors
 X_tensor = torch.tensor(X, dtype=torch.float32).unsqueeze(-1)  # [samples, seq_len, 1]
 y_tensor = torch.tensor(y, dtype=torch.float32).unsqueeze(-1)  # [samples, 1]
 
-# Model, loss, optimizer
 model = BasicLSTM()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -63,7 +58,7 @@ for epoch in range(epochs):
     if epoch % 10 == 0:
         print(f"Epoch {epoch}, Loss: {loss.item():.4f}")
 
-# Plot training loss
+# plot training loss
 plt.figure(figsize=(6, 4))
 plt.plot(losses, label="Training Loss")
 plt.xlabel("Epoch")
@@ -73,7 +68,6 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-# Plot 2: True vs. Predicted
 model.eval()
 with torch.no_grad():
     preds = model(X_tensor).squeeze().numpy()
